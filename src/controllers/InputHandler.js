@@ -57,7 +57,7 @@ class InputHandler {
         // console.log('Key pressed:', event.code);
         
         // Prevent default for game control keys (no scrolling, using space for bottom etc)
-        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyC', 'KeyP', 'Escape'].includes(event.code)) {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyC', 'KeyP', 'Escape', 'KeyA', 'KeyD', 'KeyS', 'KeyX'].includes(event.code)) {
             event.preventDefault();
         }
         
@@ -149,15 +149,23 @@ class InputHandler {
 
         switch (keyCode) {
             case 'ArrowLeft':
+            case 'KeyA':
                 this.board.moveCurrentPiece(-1, 0);
                 break;
             case 'ArrowRight':
+            case 'KeyD':
                 this.board.moveCurrentPiece(1, 0);
                 break;
             case 'ArrowDown':
+            case 'KeyS':
                 this.board.moveCurrentPiece(0, 1);
                 break;
             case 'ArrowUp':
+                if (isInitialPress) {
+                    this.board.rotateCurrentPiece();
+                }
+                break;
+            case 'KeyX':
                 if (isInitialPress) {
                     this.board.rotateCurrentPiece();
                 }
