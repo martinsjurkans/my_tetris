@@ -1,0 +1,14 @@
+body {
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+#my-canvas {
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: white;
+}

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width = device-width, initial-scale = 1">
+        <title>my_tetris</title>
+        <style>
+            html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                background-color: #808080;
+            }
+            #my-canvas {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: white;
+                padding: 20px;
+            }
+            #info-panel {
+                display: none;
+                position: fixed;
+                background-color: white;
+                border: 1px solid #ddd;
+                padding: 15px;
+                font-size: 12px;
+                font-family: Arial, sans-serif;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                max-width: 250px;
+                z-index: 99;
+            }
+            .info-section {
+                margin-bottom: 10px;
+            }
+            .info-section:last-child {
+                margin-bottom: 0;
+            }
+            .info-section h3 {
+                margin: 0 0 5px 0;
+                font-size: 12px;
+                font-weight: bold;
+            }
+            .info-section p {
+                margin: 0;
+                line-height: 1.4;
+                font-size: 12px;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="my-canvas"></canvas>
+        <div id="info-panel">
+            <div class="info-section">
+                <h3>Controls</h3>
+                <p>
+                    ←/→ or A/D: Move<br>
+                    ↓ or S: Soft Drop<br>
+                    ↑ or E: Rotate<br>
+                    Space: Hard Drop<br>
+                    C: Hold Piece<br>
+                    P/ESC: Pause
+                </p>
+            </div>
+            <div class="info-section">
+                <h3>Scoring</h3>
+                <p>
+                    1 Line: 100 pts<br>
+                    2 Lines: 120 pts<br>
+                    3 Lines: 150 pts<br>
+                    4 Lines: 200 pts<br>
+                    Level multiplier: +0.1x per level
+                </p>
+            </div>
+        </div>
+        <script type="module" src="src/main.js"></script>
+        <script>
+            const canvas = document.getElementById('my-canvas');
+            const infoPanel = document.getElementById('info-panel');
+            let game;
+            
+            // Prevent arrow keys from scrolling
+            window.addEventListener("keydown", function(e) {
+                if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+                    e.preventDefault();
+                }
+            }, false);
+            
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const padding = 20; // Canvas padding
+                
+                // Calculate click position relative to canvas content (excluding padding)
+                const x = e.clientX - (rect.left + padding);
+                const y = e.clientY - (rect.top + padding);
+                
+                // Get button bounds from renderer
+                if (window.game && window.game.renderer) {
+                    const bounds = window.game.renderer.infoButtonBounds;
+                    if (bounds) {
+                        // Check if click is within button bounds
+                        if (x >= bounds.x && x <= bounds.x + bounds.width &&
+                            y >= bounds.y && y <= bounds.y + bounds.height) {
+                            const isVisible = infoPanel.style.display === 'block';
+                            
+                            // Position the panel next to the button
+                            if (!isVisible) {
+                                const buttonRect = {
+                                    left: rect.left + padding + bounds.x,
+                                    top: rect.top + padding + bounds.y,
+                                    width: bounds.width,
+                                    height: bounds.height
+                                };
+                                
+                                // Position panel to the left of the button if there's space
+                                if (buttonRect.left > 300) {
+                                    infoPanel.style.right = (window.innerWidth - buttonRect.left + 10) + 'px';
+                                    infoPanel.style.bottom = (window.innerHeight - (buttonRect.top + buttonRect.height/2)) + 'px';
+                                } else {
+                                    // Otherwise position above the button
+                                    infoPanel.style.right = (window.innerWidth - (buttonRect.left + buttonRect.width)) + 'px';
+                                    infoPanel.style.bottom = (window.innerHeight - buttonRect.top + 10) + 'px';
+                                }
+                            }
+                            
+                            infoPanel.style.display = isVisible ? 'none' : 'block';
+                        }
+                    }
+                }
+            });
+
+            // Close panel when clicking outside
+            document.addEventListener('click', (event) => {
+                if (window.game && window.game.renderer) {
+                    const bounds = window.game.renderer.infoButtonBounds;
+                    if (bounds && event.target === canvas) {
+                        const rect = canvas.getBoundingClientRect();
+                        const padding = 20;
+                        const x = event.clientX - (rect.left + padding);
+                        const y = event.clientY - (rect.top + padding);
+                        
+                        // Keep panel open if clicking the button
+                        if (x >= bounds.x && x <= bounds.x + bounds.width &&
+                            y >= bounds.y && y <= bounds.y + bounds.height) {
+                            return;
+                        }
+                    }
+                    
+                    // Close if clicking outside button and panel
+                    if (!infoPanel.contains(event.target)) {
+                        infoPanel.style.display = 'none';
+                    }
+                }
+            });
+
+            // Expose game instance for click handling
+            window.setGame = function(gameInstance) {
+                window.game = gameInstance;
+            };
+        </script>
+    </body>
+</html>
