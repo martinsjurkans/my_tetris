@@ -9,7 +9,3 @@ Online multiplayer
 Global leaderboard with rankings
 Stats tracking (pieces placed, lines cleared, etc.)
 Quick restart option
-
-
-????
-where level speed is changed?
