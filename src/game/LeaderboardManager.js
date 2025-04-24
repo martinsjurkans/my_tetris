@@ -28,19 +28,38 @@ class LeaderboardManager {
 
     // Submit a new score to the global API
     async submitScore(name, score) {
+        console.log('Attempting to submit score to API:', { name, score });
         try {
+            console.log('Fetching API endpoint at:', window.location.origin + '/api/leaderboard');
             const res = await fetch('/api/leaderboard', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, score })
             });
-            if (!res.ok) throw new Error('Failed to submit score');
+            
+            console.log('API response status:', res.status);
+            
+            if (!res.ok) {
+                try {
+                    const errorData = await res.json();
+                    console.error('API error response:', errorData);
+                    throw new Error(`Failed to submit score: ${res.status} ${JSON.stringify(errorData)}`);
+                } catch (jsonError) {
+                    const errorText = await res.text();
+                    console.error('API error response (text):', errorText);
+                    throw new Error(`Failed to submit score: ${res.status} ${errorText}`);
+                }
+            }
+            
             const newEntry = await res.json();
+            console.log('Successfully submitted score to API:', newEntry);
+            
             // Optionally re-fetch leaderboard
             await this.fetchLeaderboard();
             return newEntry;
         } catch (error) {
             console.error('Error submitting score:', error);
+            console.log('Falling back to local storage');
             // Fall back to local storage if API fails
             this.addScoreLocally(name, score);
             return { name, score, date: new Date().toISOString() };
