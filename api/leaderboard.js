@@ -1,5 +1,15 @@
 // Vercel serverless function for global leaderboard
-// Simple implementation using serverless functions
+// Simple implementation using serverless functions with in-memory storage
+
+// In-memory storage for scores (persists between invocations as long as the function instance is alive)
+// This is a simple solution - in a production app, you'd use a database
+let globalScores = [
+  { name: 'Champion', score: 10000, date: '2025-04-20T12:00:00Z' },
+  { name: 'Runner', score: 8500, date: '2025-04-19T14:30:00Z' },
+  { name: 'ThirdPlace', score: 7200, date: '2025-04-18T09:15:00Z' },
+  { name: 'FourthBest', score: 6800, date: '2025-04-17T18:45:00Z' },
+  { name: 'FifthStar', score: 5500, date: '2025-04-16T20:30:00Z' }
+];
 
 module.exports = async (req, res) => {
   try {
@@ -16,20 +26,19 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') {
       return res.status(200).end();
     }
-    
-    // Mock data for testing
-    const mockLeaderboard = [
-      { rank: 1, name: 'Champion', score: 10000, date: '2025-04-20T12:00:00Z' },
-      { rank: 2, name: 'Runner', score: 8500, date: '2025-04-19T14:30:00Z' },
-      { rank: 3, name: 'ThirdPlace', score: 7200, date: '2025-04-18T09:15:00Z' },
-      { rank: 4, name: 'FourthBest', score: 6800, date: '2025-04-17T18:45:00Z' },
-      { rank: 5, name: 'FifthStar', score: 5500, date: '2025-04-16T20:30:00Z' }
-    ];
 
     if (req.method === 'GET') {
-      // Return mock leaderboard data
-      console.log('Returning mock leaderboard data');
-      return res.status(200).json(mockLeaderboard);
+      // Sort scores and add rank
+      const sortedScores = [...globalScores].sort((a, b) => b.score - a.score);
+      const leaderboard = sortedScores.slice(0, 10).map((entry, idx) => ({
+        rank: idx + 1,
+        name: entry.name,
+        score: entry.score,
+        date: entry.date
+      }));
+      
+      console.log('Returning leaderboard data:', leaderboard);
+      return res.status(200).json(leaderboard);
     } else if (req.method === 'POST') {
       // Handle score submission
       console.log('Received POST request body:', req.body);
@@ -54,8 +63,16 @@ module.exports = async (req, res) => {
       
       console.log('New score entry:', newEntry);
       
-      // In a real implementation, you would save this to a database
-      // For now, we'll just return success
+      // Add the new score to our in-memory array
+      globalScores.push(newEntry);
+      
+      // Sort scores and keep only top 20 to prevent memory issues
+      globalScores = globalScores
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 20);
+      
+      console.log('Updated global scores, now have:', globalScores.length);
+      
       return res.status(201).json({
         success: true,
         message: 'Score submitted successfully',
