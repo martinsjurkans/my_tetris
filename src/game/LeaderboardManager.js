@@ -41,6 +41,42 @@ class LeaderboardManager {
             return newEntry;
         } catch (error) {
             console.error('Error submitting score:', error);
+            // Fall back to local storage if API fails
+            this.addScoreLocally(name, score);
+            return { name, score, date: new Date().toISOString() };
+        }
+    }
+
+    // Add a score to local storage as fallback
+    addScoreLocally(name, score) {
+        try {
+            // Get current leaderboard
+            const leaderboard = this.loadLeaderboard();
+            
+            // Add new score
+            const newEntry = {
+                name: name,
+                score: score,
+                date: new Date().toISOString()
+            };
+            
+            leaderboard.push(newEntry);
+            
+            // Sort by score (highest first)
+            leaderboard.sort((a, b) => b.score - a.score);
+            
+            // Keep only top 10
+            const topScores = leaderboard.slice(0, 10);
+            
+            // Save back to localStorage
+            localStorage.setItem('tetrisLeaderboard', JSON.stringify(topScores));
+            
+            // Update the current leaderboard
+            this.leaderboard = topScores;
+            
+            return newEntry;
+        } catch (error) {
+            console.error('Error saving score locally:', error);
             return null;
         }
     }

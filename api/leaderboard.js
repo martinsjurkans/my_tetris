@@ -1,6 +1,3 @@
-// Vercel serverless function for global leaderboard
-// Requires SUPABASE_URL and SUPABASE_KEY in environment variables
-
 const fetch = require('node-fetch');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -8,6 +5,10 @@ const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const TABLE = 'leaderboard';
 
 module.exports = async (req, res) => {
+  // Log environment variables status (without revealing values)
+  console.log('Supabase URL set:', !!SUPABASE_URL);
+  console.log('Supabase Key set:', !!SUPABASE_KEY);
+  
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     res.status(500).json({ error: 'Supabase credentials not set' });
     return;
