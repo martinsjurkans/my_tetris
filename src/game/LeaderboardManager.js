@@ -41,13 +41,12 @@ class LeaderboardManager {
             
             if (!res.ok) {
                 try {
-                    const errorData = await res.json();
-                    console.error('API error response:', errorData);
-                    throw new Error(`Failed to submit score: ${res.status} ${JSON.stringify(errorData)}`);
-                } catch (jsonError) {
                     const errorText = await res.text();
-                    console.error('API error response (text):', errorText);
+                    console.error('API error response:', res.status, errorText);
                     throw new Error(`Failed to submit score: ${res.status} ${errorText}`);
+                } catch (readError) {
+                    console.error('Error reading response:', readError);
+                    throw new Error(`Failed to submit score: ${res.status}`);
                 }
             }
             
