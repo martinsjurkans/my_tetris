@@ -1,6 +1,12 @@
 class LeaderboardManager {
     constructor() {
         this.leaderboard = this.loadLeaderboard();
+        this.isLoading = false;
+        
+        // Immediately try to fetch the global leaderboard
+        this.fetchLeaderboard().catch(err => {
+            console.log('Initial leaderboard fetch failed, using local data');
+        });
     }
 
     loadLeaderboard() {
@@ -15,14 +21,28 @@ class LeaderboardManager {
 
     // Fetch the global leaderboard from the API
     async fetchLeaderboard() {
+        // If already loading, don't start another request
+        if (this.isLoading) return this.leaderboard;
+        
+        this.isLoading = true;
         try {
             const res = await fetch('/api/leaderboard');
             if (!res.ok) throw new Error('Failed to fetch leaderboard');
-            this.leaderboard = await res.json();
+            
+            const globalScores = await res.json();
+            
+            // Only replace the leaderboard if we got valid data
+            if (globalScores && Array.isArray(globalScores) && globalScores.length > 0) {
+                this.leaderboard = globalScores;
+            }
+            
             return this.leaderboard;
         } catch (error) {
             console.error('Error fetching leaderboard:', error);
-            return [];
+            // Keep using the current leaderboard on error
+            return this.leaderboard;
+        } finally {
+            this.isLoading = false;
         }
     }
 
