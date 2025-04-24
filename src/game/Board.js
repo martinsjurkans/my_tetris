@@ -4,6 +4,7 @@ import Tetromino from './Tetromino.js';
 class Board {
     constructor(gameState) {
         this.gameState = gameState;
+        this.soundManager = gameState.soundManager;
         this.currentPiece = null;
         this.nextPiece = null;
         this.heldPiece = null;
@@ -80,13 +81,25 @@ class Board {
             this.currentPiece.x -= dx;
             this.currentPiece.y -= dy;
 
-            // If moving down caused collision, lock the piece
+            // Play wall collision sound if horizontal movement
+            if (dx !== 0 && dy === 0) {
+                this.soundManager.play('wall');
+            }
+            
+            // If moving down caused collision, lock the piece and play land sound
             if (dy > 0) {
+                this.soundManager.play('land');
                 this.lockPiece();
                 return true;
             }
             return false;
         }
+        
+        // Play move sound for horizontal movement
+        if (dx !== 0 && dy === 0) {
+            this.soundManager.play('move');
+        }
+        
         return true;
     }
 
@@ -98,15 +111,22 @@ class Board {
             // Try wall kick
             const originalX = this.currentPiece.x;
             
+            // Play wall collision sound
+            this.soundManager.play('wall');
+            
             // Try moving right
             this.currentPiece.x++;
             if (!this.checkCollision(this.currentPiece)) {
+                // Successful wall kick
+                this.soundManager.play('rotate');
                 return true;
             }
             
             // Try moving left
             this.currentPiece.x = originalX - 1;
             if (!this.checkCollision(this.currentPiece)) {
+                // Successful wall kick
+                this.soundManager.play('rotate');
                 return true;
             }
             
@@ -115,6 +135,9 @@ class Board {
             this.currentPiece.rotateBack();
             return false;
         }
+        
+        // Successful rotation
+        this.soundManager.play('rotate');
         return true;
     }
 
@@ -142,6 +165,8 @@ class Board {
             this.currentPiece.y--;
             try {
                 this.gameState.isLocking = true;
+                // Play land sound
+                this.soundManager.play('land');
                 this.lockPiece();
             } finally {
                 this.gameState.isLocking = false;
@@ -151,6 +176,11 @@ class Board {
 
     lockPiece() {
         if (!this.currentPiece) return;
+
+        // Play land sound if not already played by hardDrop
+        if (!this.gameState.isLocking) {
+            this.soundManager.play('land');
+        }
 
         try {
             // Store the current piece info before clearing it

@@ -1,5 +1,6 @@
 import { GAME_CONSTANTS } from '../utils/Constants.js';
 import LeaderboardManager from './LeaderboardManager.js';
+import SoundManager from '../audio/SoundManager.js';
 
 class GameState {
     constructor() {
@@ -11,6 +12,7 @@ class GameState {
         this.hasSubmittedScore = false;
         this.gameBoardArray = Array(GAME_CONSTANTS.BOARD.HEIGHT).fill().map(() => Array(GAME_CONSTANTS.BOARD.WIDTH).fill(0));
         this.leaderboardManager = new LeaderboardManager();
+        this.soundManager = new SoundManager();
     }
 
     start() {
@@ -35,6 +37,7 @@ class GameState {
 
     setGameOver() {
         this.state = GAME_CONSTANTS.GAME_STATES.GAME_OVER;
+        this.soundManager.play('gameOver');
     }
 
     isGameOver() {
@@ -59,6 +62,9 @@ class GameState {
             this.score += Math.floor(totalPoints);
             this.linesCleared += lines;
             this.level = Math.floor(this.linesCleared / 10) + 1;
+            
+            // Play line clear sound
+            this.soundManager.play('lineClear');
         }
     }
 
