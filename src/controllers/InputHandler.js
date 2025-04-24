@@ -16,6 +16,9 @@ class InputHandler {
     }
 
     handleClick(event) {
+        // Mark user interaction to enable audio
+        this.gameState.soundManager.markUserInteraction();
+        
         const rect = this.canvas.getBoundingClientRect();
         const scaleX = this.canvas.width / rect.width;
         const scaleY = this.canvas.height / rect.height;
@@ -54,12 +57,13 @@ class InputHandler {
     }
 
     handleKeyDown(event) {
-        // console.log('Key pressed:', event.code);
-        
-        // Prevent default for game control keys (no scrolling, using space for bottom etc)
-        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyC', 'KeyP', 'Escape', 'KeyA', 'KeyD', 'KeyS', 'KeyX'].includes(event.code)) {
+        // Prevent default behavior for game control keys
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "KeyP", "KeyR", "KeyC", "Enter"].includes(event.code)) {
             event.preventDefault();
         }
+        
+        // Mark user interaction to enable audio
+        this.gameState.soundManager.markUserInteraction();
         
         // Handle name entry
         if (this.renderer.isEnteringName) {

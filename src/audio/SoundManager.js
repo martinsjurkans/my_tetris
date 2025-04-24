@@ -5,6 +5,7 @@ class SoundManager {
         this.muted = false;
         this.musicMuted = false;
         this.initialized = false;
+        this.userInteracted = false; // Flag to track if user has interacted
         this.loadSounds();
     }
 
@@ -37,6 +38,9 @@ class SoundManager {
     play(soundName) {
         if (this.muted || !this.initialized) return;
         
+        // Mark that user has interacted with the game
+        this.userInteracted = true;
+        
         const sound = this.sounds[soundName];
         if (sound) {
             // Stop and reset the sound before playing again
@@ -51,9 +55,16 @@ class SoundManager {
             console.warn(`Sound ${soundName} not found`);
         }
     }
+    
+    markUserInteraction() {
+        this.userInteracted = true;
+        // Try to play background music now that user has interacted
+        this.playBackgroundMusic();
+    }
 
     playBackgroundMusic() {
-        if (!this.musicMuted && this.backgroundMusic) {
+        // Only attempt to play if user has interacted and music is not muted
+        if (this.userInteracted && !this.musicMuted && this.backgroundMusic) {
             this.backgroundMusic.play().catch(error => {
                 console.warn('Failed to play background music:', error);
             });
