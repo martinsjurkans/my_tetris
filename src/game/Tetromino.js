@@ -13,7 +13,7 @@ class Tetromino {
 
     constructor(type) {
         this.type = type;
-        this.shape = JSON.parse(JSON.stringify(Tetromino.SHAPES[type])); // Deep copy to avoid reference issues
+        this.shape = JSON.parse(JSON.stringify(Tetromino.SHAPES[type]));
         this.color = GAME_CONSTANTS.COLORS.TETROMINOS[type];
         this.x = Math.floor((GAME_CONSTANTS.BOARD.WIDTH - this.shape[0].length) / 2);
         this.y = 0;
@@ -30,13 +30,6 @@ class Tetromino {
             }
         }
         this.shape = newShape;
-    }
-
-    rotateBack() {
-        // Rotate three times to go back one rotation
-        for (let i = 0; i < 3; i++) {
-            this.rotate();
-        }
     }
 
     moveLeft() {

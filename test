@@ -51,22 +51,17 @@ class Renderer {
     }
 
     roundRect(x, y, width, height, radius) {
-        if (this.ctx.roundRect) {
-            this.ctx.beginPath();
-            this.ctx.roundRect(x, y, width, height, radius);
-        } else {
-            this.ctx.beginPath();
-            this.ctx.moveTo(x + radius, y);
-            this.ctx.lineTo(x + width - radius, y);
-            this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-            this.ctx.lineTo(x + width, y + height - radius);
-            this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-            this.ctx.lineTo(x + radius, y + height);
-            this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-            this.ctx.lineTo(x, y + radius);
-            this.ctx.quadraticCurveTo(x, y, x + radius, y);
-            this.ctx.closePath();
-        }
+        this.ctx.beginPath();
+        this.ctx.moveTo(x + radius, y);
+        this.ctx.lineTo(x + width - radius, y);
+        this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        this.ctx.lineTo(x + width, y + height - radius);
+        this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        this.ctx.lineTo(x + radius, y + height);
+        this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        this.ctx.lineTo(x, y + radius);
+        this.ctx.quadraticCurveTo(x, y, x + radius, y);
+        this.ctx.closePath();
     }
 
     drawCurrentPiece() {
@@ -301,20 +296,10 @@ class Renderer {
         this.ctx.fillText('NAME', modalX + padding + 45, headerY);
         this.ctx.fillText('SCORE', modalX + padding + 120, headerY);
 
-        // Always get fresh scores from the manager
+        // Scores
         const scores = this.gameState.leaderboardManager.getScores();
-        console.log('Rendering leaderboard with scores:', scores);
-        
         const startY = headerY + 25;
         const lineHeight = 24;
-        
-        if (!scores || scores.length === 0) {
-            this.ctx.textAlign = 'center';
-            this.ctx.fillText('No scores yet!', modalX + modalWidth/2, startY + 20);
-            this.ctx.fillText('Be the first!', modalX + modalWidth/2, startY + 45);
-            this.ctx.textAlign = 'left';
-            return;
-        }
 
         scores.forEach((score, index) => {
             const y = startY + (index * lineHeight);
@@ -325,7 +310,6 @@ class Renderer {
                 this.ctx.fillRect(modalX + 2, y - 12, modalWidth - 4, lineHeight);
             }
             
-            this.ctx.fillStyle = '#01182b';
             this.ctx.fillText(`${index + 1}`, modalX + padding, y);
             this.ctx.fillText(score.name, modalX + padding + 45, y);
             this.ctx.fillText(score.score.toString(), modalX + padding + 120, y);
@@ -400,15 +384,12 @@ class Renderer {
         if (this.gameState.isPaused()) {
             this.drawOverlay('PAUSED', 'Press P or ESC to continue');
         } else if (this.gameState.isGameOver()) {
-            // Only show name entry if we haven't submitted yet
-            if (!this.gameState.hasSubmittedScore) {
-                if (!this.isEnteringName && !this.showingLeaderboard) {
-                    console.log('Game over, showing name entry modal');
-                    this.isEnteringName = true;
-                    this.playerName = '';
-                }
+            const isHighScore = this.gameState.leaderboardManager.isHighScore(this.gameState.score);
+            if (isHighScore && !this.isEnteringName && !this.gameState.hasSubmittedScore) {
+                console.log('Showing name entry modal for high score');
+                this.isEnteringName = true;
+                this.playerName = '';
             }
-            
             this.drawOverlay('GAME OVER', 'Press SPACE to restart');
         }
     }
