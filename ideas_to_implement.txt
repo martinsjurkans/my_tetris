@@ -1,11 +1,8 @@
 Particle effects when clearing lines
 Screen shake on hard drops
-Retro sound effects for movements/rotations
-Background music with increasing tempo as level increases
 Achievement system (e.g. "Clear 4 lines 10 times")
 Experience points and level-up rewards
 Local multiplayer (versus mode)
 Online multiplayer
-Global leaderboard with rankings
 Stats tracking (pieces placed, lines cleared, etc.)
 Quick restart option
