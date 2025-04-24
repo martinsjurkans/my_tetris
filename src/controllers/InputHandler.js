@@ -65,7 +65,7 @@ class InputHandler {
         if (this.renderer.isEnteringName) {
             if (event.key === 'Enter' && this.renderer.playerName.trim()) {
                 console.log('Submitting score:', this.renderer.playerName, this.gameState.score);
-                this.gameState.leaderboardManager.addScore(
+                this.gameState.leaderboardManager.submitScore(
                     this.renderer.playerName,
                     this.gameState.score
                 );
