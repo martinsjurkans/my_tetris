@@ -17,6 +17,8 @@ class GameState {
 
     start() {
         this.state = GAME_CONSTANTS.GAME_STATES.PLAYING;
+        // Start playing background music
+        this.soundManager.playBackgroundMusic();
     }
 
     isPlaying() {
@@ -30,8 +32,12 @@ class GameState {
     togglePause() {
         if (this.state === GAME_CONSTANTS.GAME_STATES.PLAYING) {
             this.state = GAME_CONSTANTS.GAME_STATES.PAUSED;
+            // Pause background music when game is paused
+            this.soundManager.pauseBackgroundMusic();
         } else if (this.state === GAME_CONSTANTS.GAME_STATES.PAUSED) {
             this.state = GAME_CONSTANTS.GAME_STATES.PLAYING;
+            // Resume background music when game is unpaused
+            this.soundManager.playBackgroundMusic();
         }
     }
 

@@ -1,7 +1,9 @@
 class SoundManager {
     constructor() {
         this.sounds = {};
+        this.backgroundMusic = null;
         this.muted = false;
+        this.musicMuted = false;
         this.initialized = false;
         this.loadSounds();
     }
@@ -22,6 +24,11 @@ class SoundManager {
             this.sounds[name] = new Audio(`sounds/${file}`);
             this.sounds[name].volume = 0.5; // Set default volume
         }
+        
+        // Load background music
+        this.backgroundMusic = new Audio('sounds/backgroundMusic.mp3');
+        this.backgroundMusic.loop = true; // Loop the background music
+        this.backgroundMusic.volume = 0.3; // Lower volume for background music
 
         this.initialized = true;
         console.log('Sound manager initialized with sounds:', Object.keys(this.sounds));
@@ -45,17 +52,65 @@ class SoundManager {
         }
     }
 
+    playBackgroundMusic() {
+        if (!this.musicMuted && this.backgroundMusic) {
+            this.backgroundMusic.play().catch(error => {
+                console.warn('Failed to play background music:', error);
+            });
+        }
+    }
+
+    pauseBackgroundMusic() {
+        if (this.backgroundMusic) {
+            this.backgroundMusic.pause();
+        }
+    }
+
+    toggleBackgroundMusic() {
+        if (this.backgroundMusic) {
+            if (this.backgroundMusic.paused) {
+                this.playBackgroundMusic();
+            } else {
+                this.pauseBackgroundMusic();
+            }
+        }
+        return !this.backgroundMusic.paused;
+    }
+
     toggleMute() {
         this.muted = !this.muted;
         return this.muted;
+    }
+
+    toggleMusicMute() {
+        this.musicMuted = !this.musicMuted;
+        if (this.musicMuted) {
+            this.pauseBackgroundMusic();
+        } else {
+            this.playBackgroundMusic();
+        }
+        return this.musicMuted;
     }
 
     setMute(muted) {
         this.muted = muted;
     }
 
+    setMusicMute(muted) {
+        this.musicMuted = muted;
+        if (this.musicMuted) {
+            this.pauseBackgroundMusic();
+        } else {
+            this.playBackgroundMusic();
+        }
+    }
+
     isMuted() {
         return this.muted;
+    }
+    
+    isMusicMuted() {
+        return this.musicMuted;
     }
 }
 
