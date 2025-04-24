@@ -303,7 +303,6 @@ class Renderer {
 
         // Always get fresh scores from the manager
         const scores = this.gameState.leaderboardManager.getScores();
-        console.log('Rendering leaderboard with scores:', scores);
         
         const startY = headerY + 25;
         const lineHeight = 24;
@@ -403,7 +402,6 @@ class Renderer {
             // Only show name entry if we haven't submitted yet
             if (!this.gameState.hasSubmittedScore) {
                 if (!this.isEnteringName && !this.showingLeaderboard) {
-                    console.log('Game over, showing name entry modal');
                     this.isEnteringName = true;
                     this.playerName = '';
                 }
